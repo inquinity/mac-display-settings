@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC2034  # Standard color palette; not every color is used.
 #
 # Build and sign the Display Settings Menu prototype without an Xcode project.
 #

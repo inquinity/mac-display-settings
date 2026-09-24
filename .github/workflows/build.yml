@@ -1,0 +1,48 @@
+name: Build
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: ShellCheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Lint build.sh
+        run: shellcheck build.sh
+
+  build:
+    name: Build (macOS)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Show toolchain
+        run: |
+          sw_vers
+          xcodebuild -version
+          xcrun swiftc --version
+
+      # Ad-hoc signing: CI has no developer certificate. This checks that the
+      # app and extension compile, assemble, and pass codesign verification;
+      # it does not produce a build Finder will load on another Mac.
+      - name: Build and sign (ad-hoc)
+        run: ./build.sh --identity -
+
+      - name: Check bundle
+        run: |
+          app="build/Display Settings Menu.app"
+          appex="$app/Contents/PlugIns/DisplaySettingsMenuExtension.appex"
+          plutil -lint "$app/Contents/Info.plist" "$appex/Contents/Info.plist"
+          codesign -d --entitlements - "$appex" 2>&1 | grep -q 'com.apple.security.app-sandbox'
+          nm -u "$appex/Contents/MacOS/DisplaySettingsMenuExtension" | grep -q '_NSExtensionMain'

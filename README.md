@@ -3,9 +3,24 @@
 Adds **Display Settings…** to the menu you get when you Control-click the
 empty macOS desktop, using a Finder Sync extension.
 
-This is a feasibility prototype. The open question is whether Finder asks a
+This is a feasibility prototype. The question was whether Finder asks a
 Finder Sync extension for a container menu when you click the desktop
-background. The extension logs every menu request so you can check.
+background. The extension logs every menu request so you can check. The
+answer is no; see [Result](#result).
+
+## Result
+
+**Finder Sync cannot add items to the desktop background menu.** Tested
+2026-09-24 on macOS 27.0 with the extension enabled and running:
+
+| Test | Result |
+|---|---|
+| Extension registers, launches, and watches `~/Desktop` | Yes: `Extension started; watching /Users/…/Desktop` |
+| Control-click empty space in a Finder window showing `~/Desktop` | Yes: **Display Settings…** appears |
+| Control-click the empty desktop itself | No: Finder never calls `menu(for:)`; nothing is logged |
+
+The extension works; Finder simply doesn't consult Finder Sync extensions for
+the desktop background. The steps below still reproduce the test.
 
 ## Layout
 

@@ -20,7 +20,8 @@ answer is no; see [Result](#result).
 | Control-click the empty desktop itself | No: Finder never calls `menu(for:)`; nothing is logged |
 
 The extension works; Finder simply doesn't consult Finder Sync extensions for
-the desktop background. The steps below still reproduce the test.
+the desktop background. The steps below still reproduce the test. For the
+wider research into other approaches, see [docs/research.md](docs/research.md).
 
 ## Layout
 

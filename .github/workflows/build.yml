@@ -1,7 +1,9 @@
 name: Build
 
+# Pushes to main plus PRs: a PR branch builds once (as the PR), not twice.
 on:
   push:
+    branches: [main]
   pull_request:
   workflow_dispatch:
 

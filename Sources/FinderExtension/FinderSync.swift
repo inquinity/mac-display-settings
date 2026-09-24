@@ -33,15 +33,21 @@ final class FinderSync: FIFinderSync {
     }
 
     override func menu(for menuKind: FIMenuKind) -> NSMenu? {
-        let targetedURL = FIFinderSyncController.default().targetedURL()?.standardizedFileURL
+        let targetedURL = FIFinderSyncController.default().targetedURL()
+        // Compare paths, not URLs: `URL ==` compares the full string, so a
+        // trailing slash on one side but not the other would fail the check.
+        let targetedPath = targetedURL?.standardizedFileURL.path
+        let isDesktop = targetedPath == desktopURL.path
         logger.notice("""
             menu(for:) kind=\(menuKind.rawValue, privacy: .public) \
-            target=\(targetedURL?.path ?? "nil", privacy: .public)
+            target=\(targetedURL?.absoluteString ?? "nil", privacy: .public) \
+            watched=\(self.desktopURL.absoluteString, privacy: .public) \
+            isDesktop=\(isDesktop, privacy: .public)
             """)
 
         // Only the background of the Desktop itself, not items on it and
         // not Finder windows showing subfolders of ~/Desktop.
-        guard menuKind == .contextualMenuForContainer, targetedURL == desktopURL else {
+        guard menuKind == .contextualMenuForContainer, isDesktop else {
             return nil
         }
 

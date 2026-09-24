@@ -37,7 +37,7 @@ keychain; pass `--identity <name-or-hash>` to pick another.
    open "$HOME/Applications/Display Settings Menu.app"
    ```
 
-2. In the System Settings pane that opens (General → Login Items & Extensions → Finder extensions), turn on **Display Settings Menu**.
+2. In the System Settings pane that opens (General → Login Items & Extensions → Finder extensions), turn on **Display Settings Menu**. If the pane doesn't open, go there by hand in System Settings.
 3. In a terminal, watch the extension's log:
 
    ```bash
@@ -50,10 +50,15 @@ keychain; pass `--identity <name-or-hash>` to pick another.
 
 | What you see | Meaning |
 |---|---|
-| Menu item appears; log shows `kind=1 target=/Users/…/Desktop` | Works. |
-| Log shows `kind=1` with some other target | Finder reports the desktop differently; adjust the `targetedURL == desktopURL` check. |
+| Menu item appears; log shows `kind=1 target=file:///Users/…/Desktop/ … isDesktop=true` | Works. |
+| Log shows `kind=1` and `isDesktop=false` | Finder reports the desktop differently from `watched=`; compare the two URLs in the log and adjust the check in `menu(for:)`. |
 | Log shows `Extension started` but no `menu(for:)` on desktop clicks | Finder doesn't ask extensions about the desktop background. The approach doesn't work. |
 | No log lines at all | Extension isn't running. Check `pluginkit -mv -i com.altmansoftwaredesign.DisplaySettingsMenu.FinderExtension` and that it's enabled. |
+
+If iCloud Drive's **Desktop & Documents Folders** option is on, Finder may
+report the desktop as a path under
+`~/Library/Mobile Documents/com~apple~CloudDocs/Desktop`, which gives
+`isDesktop=false`. Note the `target=` value if that happens.
 
 `kind` values (from `FinderSync.h`): 0 = items, 1 = container
 (window/desktop background), 2 = sidebar, 3 = toolbar button. A desktop

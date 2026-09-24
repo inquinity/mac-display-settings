@@ -71,17 +71,20 @@ compile_swift() {
     local output_path="$1"
     shift
     local extra_flags=()
-    while [[ "$1" != "--" ]]; do
+    while [[ $# -gt 0 && "$1" != "--" ]]; do
         extra_flags+=("$1")
         shift
     done
+    [[ $# -gt 0 ]] || die "compile_swift: missing '--' before sources."
     shift
 
+    # The ${var+...} form keeps an empty array safe under set -u in bash 3.2,
+    # which is what /usr/bin/env bash finds on a stock Mac.
     xcrun swiftc \
         -O \
         -target "$(uname -m)-apple-macos$minimum_macos" \
         -sdk "$(xcrun --show-sdk-path --sdk macosx)" \
-        "${extra_flags[@]}" \
+        ${extra_flags[@]+"${extra_flags[@]}"} \
         -o "$output_path" \
         "$@"
 }
